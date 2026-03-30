@@ -1,0 +1,9 @@
+README.md
+mr_cli.py
+pyproject.toml
+mr_jira_cli.egg-info/PKG-INFO
+mr_jira_cli.egg-info/SOURCES.txt
+mr_jira_cli.egg-info/dependency_links.txt
+mr_jira_cli.egg-info/entry_points.txt
+mr_jira_cli.egg-info/requires.txt
+mr_jira_cli.egg-info/top_level.txt

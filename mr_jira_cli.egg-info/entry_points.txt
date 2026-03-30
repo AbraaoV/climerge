@@ -1,0 +1,2 @@
+[console_scripts]
+mr-cli = mr_cli:main
