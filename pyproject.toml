@@ -1,0 +1,9 @@
+[project]
+name = "mr-jira-cli"
+version = "1.0.0"
+dependencies = [
+    "requests",
+]
+
+[project.scripts]
+mr-cli = "mr_cli:main"
