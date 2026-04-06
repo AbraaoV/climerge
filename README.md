@@ -20,20 +20,20 @@ Suporta plataformas GitLab e GitHub, com integração ao JIRA para comentários 
 ## Instalação
 
 1. Clone ou baixe o repositório.
-2. Instale as dependências:
+2. Instale o pacote globalmente usando o `pip`:
+   ```bash
+   pip install .
    ```
-   pip install requests
-   ```
-3. (Opcional) Torne o script executável globalmente:
-   - Renomeie `mr_cli.py` para `mr-jira` (ou crie um alias).
-   - Adicione ao PATH do sistema.
+   *Nota: Se estiver em um ambiente de desenvolvimento, você pode usar `pip install -e .` para que as alterações no código sejam refletidas imediatamente.*
+
+Após a instalação, o comando `mr-cli` estará disponível globalmente no seu terminal.
 
 ## Configuração
 
 Execute o comando de configuração interativa:
 
-```
-python mr_cli.py --setup
+```bash
+mr-cli --setup
 ```
 
 Ou crie manualmente um arquivo `.env` em um dos caminhos suportados:
@@ -65,8 +65,8 @@ Ou crie manualmente um arquivo `.env` em um dos caminhos suportados:
 
 Automatiza todo o fluxo: detecta a branch atual, faz o push para o remoto (se necessário), extrai a chave do JIRA do nome da branch, cria os MRs/PRs e comenta no JIRA.
 
-```
-python mr_cli.py push [-t <time>] [-j <jira_key>] [--title <title>] [--no-jira-comment] [-tr] [-rc]
+```bash
+mr-cli push [-t <time>] [-j <jira_key>] [--title <title>] [--no-jira-comment] [-tr] [-rc]
 ```
 
 - `-t` ou `--time-spent`: Registra horas no JIRA.
@@ -80,21 +80,21 @@ python mr_cli.py push [-t <time>] [-j <jira_key>] [--title <title>] [--no-jira-c
 
 ```bash
 # Fluxo completo (cria MRs para test-release e release-candidate)
-python mr_cli.py push
+mr-cli push
 
 # Apenas para test-release com registro de 1h
-python mr_cli.py push -tr -t 1h
+mr-cli push -tr -t 1h
 
 # Apenas para release-candidate
-python mr_cli.py push -rc
+mr-cli push -rc
 ```
 
 ### Comando `create` (Manual)
 
 Cria MRs/PRs manualmente para uma branch específica.
 
-```
-python mr_cli.py create <platform> <source_branch> <title> [--jira <jira_key>] [--time-spent <time>] [--no-jira-comment] [-tr] [-rc]
+```bash
+mr-cli create <platform> <source_branch> <title> [--jira <jira_key>] [--time-spent <time>] [--no-jira-comment] [-tr] [-rc]
 ```
 
 - `<platform>`: `gitlab` ou `github`
@@ -106,7 +106,7 @@ python mr_cli.py create <platform> <source_branch> <title> [--jira <jira_key>] [
 
 ```bash
 # Criar apenas MR de test-release no GitLab
-python mr_cli.py create gitlab feature/minha-task "Minha Task" --jira PROJ-123 -tr
+mr-cli create gitlab feature/minha-task "Minha Task" --jira PROJ-123 -tr
 ```
 
 ## Formatos de Tempo Aceitos
