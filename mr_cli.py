@@ -162,19 +162,12 @@ class JiraClient:
         
         content = []
         for mr in merge_requests:
-            if mr['target'] == 'release-candidate':
-                label = 'RELEASE CANDIDATE: '
-            elif mr['target'] == 'test-release':
-                label = 'TEST RELEASE: '
-            else:
-                label = ''
-            
             content.append({
                 'type': 'paragraph',
                 'content': [
                     {
                         'type': 'text',
-                        'text': label
+                        'text': f"MERGE REQUEST ({mr['target']}): "
                     },
                     {
                         'type': 'text',
@@ -208,10 +201,10 @@ class JiraClient:
 def create_merge_requests(platform: str, source_branch: str, title: str, 
                          jira_key: Optional[str] = None,
                          target_branches: List[str] = None) -> List[Dict]:
-    """Cria MRs para as branches de destino informadas (padrão: test-release e release-candidate)"""
+    """Cria MRs para as branches de destino informadas (padrão: dev)"""
     
     if target_branches is None:
-        target_branches = ['test-release', 'release-candidate']
+        target_branches = ['dev']
     
     results = []
     
@@ -228,12 +221,7 @@ def create_merge_requests(platform: str, source_branch: str, title: str,
         client = GitLabClient(gitlab_url, gitlab_token, verify_ssl)
         
         for target in target_branches:
-            if target == 'test-release':
-                mr_title = f"[TEST RELEASE] {title}"
-            elif target == 'release-candidate':
-                mr_title = f"[RELEASE CANDIDATE] {title}"
-            else:
-                mr_title = title
+            mr_title = title
             
             print(f"Criando MR: {source_branch} -> {target}")
             mr = client.create_merge_request(
@@ -261,12 +249,7 @@ def create_merge_requests(platform: str, source_branch: str, title: str,
         client = GitHubClient(github_token, verify_ssl)
         
         for target in target_branches:
-            if target == 'test-release':
-                pr_title = f"[TEST RELEASE] {title}"
-            elif target == 'release-candidate':
-                pr_title = f"[RELEASE CANDIDATE] {title}"
-            else:
-                pr_title = title
+            pr_title = title
             
             print(f"Criando PR: {source_branch} -> {target}")
             pr = client.create_pull_request(
@@ -446,7 +429,7 @@ Exemplos de uso:
   mr_cli.py --setup
   
   # Comando PUSH (novo):
-  # Detecta a branch atual, faz o push se necessário, cria os MRs e comenta no JIRA.
+  # Detecta a branch atual, faz o push se necessário, cria o MR para 'dev' e comenta no JIRA.
   # A chave do JIRA é extraída do nome da branch (ex: TXPOA-1234-minha-feature).
   # O título do MR é gerado a partir do nome da branch.
   mr_cli.py push
@@ -483,10 +466,8 @@ Exemplos de uso:
                        help='Tempo gasto para registrar no JIRA (ex: 1h, 30m)')
     parser_create.add_argument('--no-jira-comment', action='store_true',
                        help='Não comentar no JIRA')
-    parser_create.add_argument('--test-release', '-tr', action='store_true',
-                       help='Abrir MR apenas para test-release')
-    parser_create.add_argument('--release-candidate', '-rc', action='store_true',
-                       help='Abrir MR apenas para release-candidate')
+    parser_create.add_argument('--target', dest='target_branch', default='dev',
+                       help='Branch de destino (padrão: dev)')
 
     # --- Comando 'push' (nova funcionalidade) ---
     parser_push = subparsers.add_parser('push', help='Automatiza o push, criação de MR/PR e comentário no JIRA para a branch atual')
@@ -498,10 +479,8 @@ Exemplos de uso:
                        help='Forçar um título específico para o MR/PR (ignora o da branch)')
     parser_push.add_argument('--no-jira-comment', action='store_true',
                        help='Não comentar no JIRA, apenas criar os MRs/PRs')
-    parser_push.add_argument('--test-release', '-tr', action='store_true',
-                       help='Abrir MR apenas para test-release')
-    parser_push.add_argument('--release-candidate', '-rc', action='store_true',
-                       help='Abrir MR apenas para release-candidate')
+    parser_push.add_argument('--target', dest='target_branch', default='dev',
+                       help='Branch de destino (padrão: dev)')
 
     args = parser.parse_args()
     
@@ -518,16 +497,8 @@ Exemplos de uso:
         print("Execute 'mr_cli.py --setup' para configurar.")
         sys.exit(1)
     
-    # Determinar branches de destino baseadas nas flags
-    target_branches = []
-    if args.test_release:
-        target_branches.append('test-release')
-    if args.release_candidate:
-        target_branches.append('release-candidate')
-    
-    # Se nenhuma flag for informada, usa o padrão (ambas)
-    if not target_branches:
-        target_branches = ['test-release', 'release-candidate']
+    # Determinar branches de destino
+    target_branches = [args.target_branch]
 
     try:
         if args.command == 'create':
